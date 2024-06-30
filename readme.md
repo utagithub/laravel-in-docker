@@ -255,7 +255,11 @@ $ /etc/init.d/ssh start
 ```
 
 
-### laravel-in-docker-cron 容器中的ssh服务成功启动后，如果后续在xxl-job中设置的任务没有成功执行,需要在xxl-job的执行器容器xxl-job-executor中手动执行一次远程登陆
+### laravel-in-docker-cron 容器中的ssh服务成功启动后，如果后续在xxl-job中设置的任务没有成功执行,出现下图所示情况
+
+<img src="./deploy/images/xxl-job009.png" alt="xxl-job009.png" style="zoom:33%;" />
+
+### 需要在xxl-job的执行器容器xxl-job-executor中手动执行一次远程登陆
 
 ```shell
 $ docker exec -it xxl-job-executor /bin/bash

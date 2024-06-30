@@ -184,32 +184,32 @@ services:
 #    depends_on:
 #      - redis
 
-#  mysql:
-#    image: registry.cn-hangzhou.aliyuncs.com/u_ta_other/mysql-server:8.0.28
-#    container_name: mysql
-#    environment:
-#      # 时区上海 - Time zone Shanghai (Change if needed)
-#      TZ: Asia/Shanghai
-#      # root 密码 - root password
-#      MYSQL_ROOT_PASSWORD: PXDN93VRKUm8TeE7
-#    ports:
-#      - 33070:3306
-#    volumes:
-#      # 数据挂载 - Data mounting
-#      - ./data/mysql/data:/var/lib/mysql
-#      # 日志
-#    command:
-#      # 将mysql8.0默认密码策略 修改为 原先 策略 (mysql8.0对其默认策略做了更改 会导致密码无法匹配)
-#      # Modify the Mysql 8.0 default password strategy to the original strategy (MySQL8.0 to change its default strategy will cause the password to be unable to match)
-#      --default-authentication-plugin=mysql_native_password
-#      --character-set-server=utf8mb4
-#      --collation-server=utf8mb4_general_ci
-#      --explicit_defaults_for_timestamp=true
-#      --lower_case_table_names=1
-#    privileged: true
-#    restart: always
-#    networks:
-#      - laravel-in-docker-net
+  mysql:
+    image: registry.cn-hangzhou.aliyuncs.com/u_ta_other/mysql-server:8.0.28
+    container_name: mysql
+    environment:
+      # 时区上海 - Time zone Shanghai (Change if needed)
+      TZ: Asia/Shanghai
+      # root 密码 - root password
+      MYSQL_ROOT_PASSWORD: PXDN93VRKUm8TeE7
+    ports:
+      - 33070:3306
+    volumes:
+      # 数据挂载 - Data mounting
+      - ./data/mysql/data:/var/lib/mysql
+      # 日志
+    command:
+      # 将mysql8.0默认密码策略 修改为 原先 策略 (mysql8.0对其默认策略做了更改 会导致密码无法匹配)
+      # Modify the Mysql 8.0 default password strategy to the original strategy (MySQL8.0 to change its default strategy will cause the password to be unable to match)
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --explicit_defaults_for_timestamp=true
+      --lower_case_table_names=1
+    privileged: true
+    restart: always
+    networks:
+      - laravel-in-docker-net
 
   #redis容器 - Redis container
   redis:
@@ -229,6 +229,34 @@ services:
     networks:
       - laravel-in-docker-net
 
+
+  #xxl-job调度器
+  xxl-job-admin:
+    image: registry.cn-hangzhou.aliyuncs.com/u_ta_other/xxl-job-admin-2.3.1:latest
+    container_name: xxl-job-admin
+    ports:
+      - 18080:18080
+    privileged: true
+    restart: always
+    networks:
+      - laravel-in-docker-net
+    depends_on:
+      - mysql
+
+
+  #xxl-job-executor执行器
+  xxl-job-executor:
+    image: registry.cn-hangzhou.aliyuncs.com/u_ta_other/xxl-job-executor-sample-springboot-2.3.1:latest
+    container_name: xxl-job-executor
+    ports:
+      - 9999:9999
+    privileged: true
+    restart: always
+    networks:
+      - laravel-in-docker-net
+    depends_on:
+      - xxl-job-admin
+#      - laravel-in-docker-cron
 
 
 networks:
