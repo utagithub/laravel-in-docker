@@ -1,0 +1,132 @@
+version: '3'
+
+
+services:
+
+  #前端网关nginx-gateay (只代理laravel-in-docker-api)
+  nginx-gateway:
+    image: registry.cn-hangzhou.aliyuncs.com/u_ta_other/nginx:1.21.5
+    container_name: nginx-gateway
+    restart: always
+    privileged: true
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - 8899:8081
+    volumes:
+      - ./deploy/nginx/conf.d:/etc/nginx/conf.d
+      - ./data/nginx/log:/var/log/nginx
+    networks:
+      - laravel-in-docker-net
+    depends_on:
+      - laravel-in-docker-api
+
+  #前端 API  php artisan config:clear
+  laravel-in-docker-api:
+    image: registry.cn-hangzhou.aliyuncs.com/u_ta_other/php-fpm:8.2-prod
+    container_name: laravel-in-docker-api
+    environment:
+      # 时区上海 - Timezone Shanghai
+      TZ: Asia/Shanghai
+    volumes:
+      - .:/var/www/html/laravel-in-docker:rw
+      - ./storage/supervisor/api:/etc/supervisor/conf.d
+    privileged: true
+    restart: always
+    networks:
+      - laravel-in-docker-net
+
+  #crontab 定时任务
+  laravel-in-docker-cron:
+    image: registry.cn-hangzhou.aliyuncs.com/u_ta_other/php-fpm:8.2-prod
+    container_name: laravel-in-docker-cron
+    environment:
+      # 时区上海 - Timezone Shanghai
+      TZ: Asia/Shanghai
+    volumes:
+      - .:/var/www/html/laravel-in-docker:rw
+      - ./storage/supervisor/cron:/etc/supervisor/conf.d
+    privileged: true
+    restart: always
+    networks:
+      - laravel-in-docker-net
+
+  #queue异步队列
+  laravel-in-docker-queue:
+    image: registry.cn-hangzhou.aliyuncs.com/u_ta_other/php-fpm:8.2-prod
+    container_name: laravel-in-docker-queue
+    environment:
+      # 时区上海 - Timezone Shanghai
+      TZ: Asia/Shanghai
+    volumes:
+      - .:/var/www/html/laravel-in-docker:rw
+      - ./storage/supervisor/queue:/etc/supervisor/conf.d
+    privileged: true
+    restart: always
+    networks:
+      - laravel-in-docker-net
+
+  mysql:
+    image: registry.cn-hangzhou.aliyuncs.com/u_ta_other/mysql-server:8.0.28
+    container_name: mysql
+    environment:
+      # 时区上海 - Time zone Shanghai (Change if needed)
+      TZ: Asia/Shanghai
+      # root 密码 - root password
+      MYSQL_ROOT_PASSWORD: PXDN93VRKUm8TeE7
+    ports:
+      - 33070:3306
+    volumes:
+      # 数据挂载 - Data mounting
+      - ./data/mysql/data:/var/lib/mysql
+      # 日志
+    command:
+      # 将mysql8.0默认密码策略 修改为 原先 策略 (mysql8.0对其默认策略做了更改 会导致密码无法匹配)
+      # Modify the Mysql 8.0 default password strategy to the original strategy (MySQL8.0 to change its default strategy will cause the password to be unable to match)
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --explicit_defaults_for_timestamp=true
+      --lower_case_table_names=1
+    privileged: true
+    restart: always
+    networks:
+      - laravel-in-docker-net
+
+
+  #xxl-job调度器
+  xxl-job-admin:
+    image: registry.cn-hangzhou.aliyuncs.com/u_ta_other/xxl-job-admin-2.3.1:latest
+    container_name: xxl-job-admin
+    ports:
+      - 18080:18080
+    privileged: true
+    restart: always
+    networks:
+      - laravel-in-docker-net
+    depends_on:
+      - mysql
+
+
+  #xxl-job-executor执行器
+  xxl-job-executor:
+    image: registry.cn-hangzhou.aliyuncs.com/u_ta_other/xxl-job-executor-sample-springboot-2.3.1:latest
+    container_name: xxl-job-executor
+    ports:
+      - 9999:9999
+    privileged: true
+    restart: always
+    networks:
+      - laravel-in-docker-net
+    depends_on:
+      - xxl-job-admin
+      - laravel-in-docker-cron
+
+
+networks:
+  laravel-in-docker-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+

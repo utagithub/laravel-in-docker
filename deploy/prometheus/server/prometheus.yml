@@ -1,0 +1,35 @@
+global:
+  scrape_interval:
+  external_labels:
+    monitor: 'codelab-monitor'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 5s  #global catch time
+    static_configs:
+      - targets: ['127.0.0.1:9090']
+
+  - job_name: 'laravel-in-docker-api'
+    static_configs:
+      - targets: [ 'laravel-in-docker-api:9100' ]
+        labels:
+          job: laravel-in-docker-api
+          app: laravel-in-docker-api
+          env: dev
+
+  - job_name: 'laravel-in-docker-cron'
+    static_configs:
+      - targets: [ 'laravel-in-docker-cron:9100' ]
+        labels:
+          job: laravel-in-docker-cron
+          app: laravel-in-docker-cron
+          env: dev
+
+  - job_name: 'laravel-in-docker-queue'
+    static_configs:
+      - targets: [ 'laravel-in-docker-queue:9100' ]
+        labels:
+          job: laravel-in-docker-queue
+          app: laravel-in-docker-queue
+          env: dev
+
