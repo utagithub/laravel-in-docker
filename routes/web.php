@@ -15,9 +15,9 @@ use Illuminate\Http\Request;
 */
 
 Route::get('/', function (Request $request) {
-    //Log::info('Hello chaoyang');
-    //Log::info('Hello beijing');
-    //Log::info('Hello zhongguo');
+    Log::info('Hello chaoyang');
+    Log::info('Hello beijing');
+    Log::info('Hello zhongguo');
     //\App\Jobs\TestJobQueue::dispatch();
     return view('welcome');
 
