@@ -5,15 +5,15 @@ WORKDIR /var/www/html/laravel-in-docker
 
 
 #COPY composer*.json ./
-#将Jenkins:laravel-in-docker项目下所有文件拷贝到WORKDIR(因为docker build是在Jenkins:laravel-in-docker项目目录下执行的)
+#将Jenkins:laravel-in-docker项目下所有文件拷贝到容器WORKDIR(因为docker build是在Jenkins:laravel-in-docker项目目录下执行的)
 COPY . .
 
-COPY ./storage/supervisor/cron/*.conf ../../../../etc/supervisor/conf.d/
+#将容器./storage/supervisor/cron/*.conf 拷贝到容器相对路径 ../../../../etc/supervisor/conf.d/
+COPY ./storage/supervisor/cron/*.conf /etc/supervisor/conf.d/
 
 #ENTRYPOINT ["supervisorctl","reload"]
 
 EXPOSE 9000
-
 
 
 

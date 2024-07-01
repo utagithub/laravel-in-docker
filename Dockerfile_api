@@ -8,7 +8,7 @@ WORKDIR /var/www/html/laravel-in-docker
 #将Jenkins:laravel-in-docker项目下所有文件拷贝到WORKDIR(因为docker build是在Jenkins:laravel-in-docker项目目录下执行的)
 COPY . .
 
-COPY ./storage/supervisor/api/*.conf ../../../../etc/supervisor/conf.d/
+COPY ./storage/supervisor/api/*.conf /etc/supervisor/conf.d/
 
 #ENTRYPOINT ["supervisorctl","reload"]
 
