@@ -1,0 +1,11 @@
+#镜像
+FROM registry.cn-hangzhou.aliyuncs.com/u_ta_other/nginx:1.21.5
+
+COPY ./deploy/nginx/conf.d/*.conf:  /etc/nginx/conf.d/
+
+
+EXPOSE 8081
+
+
+
+
