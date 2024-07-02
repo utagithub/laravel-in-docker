@@ -18,7 +18,8 @@ Route::get('/', function (Request $request) {
     Log::info('Hello chaoyang');
     Log::info('Hello beijing');
     Log::info('Hello zhongguo');
-    //\App\Jobs\TestJobQueue::dispatch();
+    //测试队列任务
+    \App\Jobs\TestJobQueue::dispatch();
     return view('welcome');
 
 });

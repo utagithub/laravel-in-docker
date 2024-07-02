@@ -1,7 +1,7 @@
 ### 一、项目简介
-该项目是基于laravel10,php8.1+版本的类微服务架构;api,定时任务,队列分别运行在不同的容器中，从而降低单个容器的压力。
+##### 本项目旨在通过 Laravel 框架实现一套微服务架构解决方案雏形，以应对高并发、复杂业务逻辑和快速迭代的需求。项目目标是提高系统的可维护性、可扩展性和容错性，同时降低不同服务间的耦合度。
 
-本项目地址 :  https://github.com/Mikaelemmmm/go-zero-looklook
+##### 本项目地址 :  https://github.com/utagithub/laravel-in-docker.git
 
 
 ##### 项目架构图
@@ -10,33 +10,32 @@
 <img src="./deploy/images/pro.png" alt="pro.png" style="zoom:33%;" />
 
 
-##### 项目目录结构如下：
+##### 项目目录结构如下:
 
-- data：该项目包含该目录依赖所有中间件(mysql、es、redis、grafana等)产生的数据，此目录下的所有内容应该在git忽略文件中，不需要提交。
-- deploy：
+- data:该项目包含该目录依赖所有中间件(mysql、es、redis、grafana等)产生的数据，此目录下的所有内容应该在git忽略文件中，不需要提交。
+- deploy:
     - filebeat: docker部署filebeat配置
-    - go-stash：go-stash配置
+    - go-stash:go-stash配置
     - nginx: nginx网关配置
-    - prometheus ： prometheus配置
-    - script：
-        - mysql：数据库脚本
+    - prometheus : prometheus配置
+    - script:
+        - mysql:数据库脚本
 - storage
-    - supervisor：
-        - api prometheus的node_exporter监控服务,队列监控工具horizon
-        - cron prometheus的node_exporter监控服务,ssh服务
-        - queue prometheus的node_exporter监控服务,laravel应用中的异步队列消费者配置
-    - prometheus：该目录下提供了一个容器监控工具和一个grafana监控模版文件,后续有用到，node_exporter是linux_arm_64的，需要特定版本的去下面链接下载
+    - supervisor:
+        - api: prometheus的node_exporter监控服务,队列监控工具horizon
+        - cron: prometheus的node_exporter监控服务,ssh服务
+        - queue: prometheus的node_exporter监控服务,laravel应用中的异步队列消费者配置
+    - prometheus:该目录下提供了一个容器监控工具和一个grafana监控模版文件,后续有用到，node_exporter是linux_arm_64的，需要特定版本的去下面链接下载
     - https://github.com/prometheus/node_exporter/releases
 
 <img src="./deploy/images/pro002.png" alt="pro002.png" style="zoom:33%;" />
 
 
 
-#### 项目中分别提供了
+#### 项目中分别提供了一个定时任务和一个异步队列的简单demo,仅供测试
 
-一个测试定时任务：app/Console/Commands/TestCommand.php
-
-一个测试队列任务：app/Jobs/TestJobQueue.php
+###### 定时任务:app/Console/Commands/TestCommand.php
+###### 队列任务:app/Jobs/TestJobQueue.php
 
 ​
 
@@ -96,7 +95,7 @@
 #### 3.1、clone代码&更新依赖
 
 ```shell
-$ git clone https://github.com/Mikaelemmmm/go-zero-looklook
+$ git clone https://github.com/utagithub/laravel-in-docker.git
 $ composer install
 $ cp .env.example .env
 ```
@@ -134,22 +133,20 @@ $ ./kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 -
 
 
 
-###### 3.2导入mysql数据
+##### 3.4导入mysql数据
 
 本地工具连接mysql的话要先进入容器，给root设置下远程连接权限
 
 ```shell
 $ docker exec -it mysql /bin/bash 
 $ mysql -uroot -p
-##输入密码：PXDN93VRKUm8TeE7
+##输入密码:PXDN93VRKUm8TeE7
 $ use mysql;
 $ update user set host='%' where user='root';
 $ FLUSH PRIVILEGES;
 ```
 
-
-
-导入/laravel-in-dcoker/deploy/mysql/laravel-in-docker.sql数据
+##### 导入xxl-job数据库:/laravel-in-dcoker/deploy/mysql/tables_xxl_job.sql数据(xxl-job数据库)
 
 
 
@@ -158,9 +155,9 @@ $ FLUSH PRIVILEGES;
 
 
 
-Elastic search: http://127.0.0.1:9200/ （⚠️：这个启动时间有点长）
+Elastic search: http://127.0.0.1:9200/ （⚠️:这个启动时间有点长）
 
-jaeger: http://127.0.0.1:16686/search  (⚠️：如果失败了，依赖es，因为es启动时间长这个有可能超时，等es启动玩restart一下)
+jaeger: http://127.0.0.1:16686/search  (⚠️:如果失败了，依赖es，因为es启动时间长这个有可能超时，等es启动玩restart一下)
 
 go-stash :  如果发现kibana点击下一步，就是日志没有收集到，恰巧你的kafka又拿到了数据的话，请restart一下go-stash稍等一分钟即可
 
@@ -210,27 +207,10 @@ Kafka:  （发布、订阅｜pub、sub）自行客户端工具查看
 $ docker-compose up -d 
 ```
 
-推荐使用portainer管理镜像，容器
+推荐使用portainer管理镜像,容器 所有服务启动如下图所示
 
 
 <img src="./deploy/images/portainer.png" alt="portainer.png" style="zoom:33%;" />
-
-
-###### 5.2导入mysql数据
-
-本地工具连接mysql的话要先进入容器，给root设置下远程连接权限
-
-```shell
-$ docker exec -it mysql /bin/bash 
-$ mysql -uroot -p
-##输入密码：PXDN93VRKUm8TeE7
-$ use mysql;
-$ update user set host='%' where user='root';
-$ FLUSH PRIVILEGES;
-```
-
-##### 导入laravel-in-docker应用测试数据库/laravel-in-dcoker/deploy/mysql/laravel-in-docker.sql数据
-##### 导入xxl-job数据库:/laravel-in-dcoker/deploy/mysql/tables_xxl_job.sql数据
 
 
 
@@ -243,6 +223,7 @@ $ FLUSH PRIVILEGES;
 
 
 ```shell
+$ docker exec -it xxl-job-executor /bin/bash
 $ /etc/init.d/ssh status
 ```
 <img src="./deploy/images/ssh001.png" alt="ssh001.png" style="zoom:33%;" />
@@ -250,16 +231,15 @@ $ /etc/init.d/ssh status
 
 #### 如果没有启动，则执行以下启动命令
 ```shell
-$ docker exec -it laravel-in-docker-cron /bin/bash
 $ /etc/init.d/ssh start
 ```
 
 
-### laravel-in-docker-cron 容器中的ssh服务成功启动后，如果后续在xxl-job中设置的任务没有成功执行,出现下图所示情况
+##### laravel-in-docker-cron 容器中的ssh服务成功启动后，如果后续在xxl-job中设置的任务没有成功执行,出现下图所示情况
 
 <img src="./deploy/images/xxl-job009.png" alt="xxl-job009.png" style="zoom:33%;" />
 
-### 需要在xxl-job的执行器容器xxl-job-executor中手动执行一次远程登陆
+##### 需要在xxl-job的执行器容器xxl-job-executor中手动执行一次远程登陆
 
 ```shell
 $ docker exec -it xxl-job-executor /bin/bash
@@ -273,8 +253,8 @@ http://0.0.0.0:18080/xxl-job-admin/toLogin
 
 <img src="./deploy/images/xxl-job001.png" alt="xxl-job001.png" style="zoom:33%;" />
 
-用户名：admin
-密码：123456
+用户名:admin
+密码:123456
 
 登陆后如下图
 
@@ -315,7 +295,7 @@ http://0.0.0.0:18080/xxl-job-admin/toLogin
 
 访问 http://127.0.0.1:9090/ ， 点击上面菜单“Status”，在点击Targets ,蓝色的就是启动成了，红色就是没启动成功
 
-【注】如果是第一次拉取项目，每个项目容器第一次构建拉取依赖，这个看网络情况，可能会稍微比较慢有的服务，这个很正常，如果碰到项目启动不起来的情况，比如order-api ，手动在order-api代码中随便写点啥保存一下触发重新编译看看日志就可以了
+【注】如果是第一次拉取项目，每个项目容器第一次构建拉取依赖，这个看网络情况，可能会稍微比较慢有的服务，这个很正常
 
 ```shell
 $ docker-compose logs -f 
@@ -348,7 +328,7 @@ $ docker-compose logs -f
 
 <img src="./deploy/images/gra006.png" alt="gra006.png" style="zoom:33%;" />
 
-效果图如下：
+效果图如下:
 
 <img src="./deploy/images/gra007.png" alt="gra007.png" style="zoom:33%;" />
 
@@ -362,7 +342,7 @@ $ docker-compose logs -f
 ### 八、日志收集
 
 
-将项目日志收集到es（filebeat收集日志->kafka -> go-stash消费kafka日志->输出到es中,kibana查看es数据）
+将项目日志收集到es（filebeat收集日志->kafka -> go-stash消费kafka日志->输出到es->kibana查看es数据）
 由于logstatsh开销过大,使用go-stash作为代替
 
 访问kibana http://127.0.0.1:5601/ ， 创建日志索引
@@ -388,9 +368,9 @@ $ docker-compose logs -f
 
 ⚠️常见日志收集失败原因
 
-- kafka中没有创建搜集日志的topic ： laravel-in-docker-log
+- kafka中没有创建搜集日志的topic : laravel-in-docker-log
 
-  解决：去kafka创建 laravel-in-docker-log，重启filebeat、go-stash
+  解决:去kafka创建 laravel-in-docker-log，重启filebeat、go-stash
 
 - 内部kafka问题
 
@@ -422,13 +402,19 @@ $ docker-compose logs -f
 
 ### 九、Jaeger链路追踪
 
-项目中引入了jaeger链路追踪，新增了app/Http/Middleware/JargerMiddleware.php中间件,在Kernel.php中配置了jaeger链路追踪中间件，以达到链路追踪的效果
+##### jaeger配置信息注意区别本地环境和容器环境
+<img src="./deploy/images/jaeger002.png" alt="jaeger002.png" style="zoom:33%;" />
 
+
+##### 项目中引入了jaeger链路追踪，新增了app/Http/Middleware/JargerMiddleware.php中间件,在Kernel.php中配置了jaeger链路追踪中间件，以达到链路追踪的效果
+访问下面两个测试链接:
+###### http://0.0.0.0:8899/jaeger/index
+###### http://0.0.0.0:8899/jaeger/insert
+访问jaeger-ui链接:
+###### http://0.0.0.0:16686/search
 <img src="./deploy/images/jaeger001.png" alt="jaeger001.png" style="zoom:33%;" />
 
 
-##### jaeger配置信息注意区别本地环境和容器环境
-<img src="./deploy/images/jaeger002.png" alt="jaeger002.png" style="zoom:33%;" />
 
 
 
@@ -436,23 +422,24 @@ $ docker-compose logs -f
 ​
 ### 十、本项目镜像介绍
 
-所有服务启动成功，应该是如下这些，自行对比
-由于docker访问原因，该项目用到的原镜像均已上传到个人阿里镜像仓库，所以如果拉取失败，可以自行下载到本地，然后修改docker-compose-ali-env.yml中的镜像地址
+##### 由于docker访问原因，该项目用到的原镜像均已上传到个人阿里镜像仓库，所以如果拉取失败，可以自行下载到本地，然后修改docker-compose-ali-env.yml中的镜像地址
 
+- php-fpm:php基础镜像
 - nginx : 网关 （nginx->api）
-- wurstmeister/kafka ： 业务使用的kafka
-- wurstmeister/zookeeper ： kafka依赖的zookeeper
-- redis：业务使用的redis
+- kafka : 业务使用的kafka
+- zookeeper : kafka依赖的zookeeper
+- redis:业务使用的redis
 - mysql: 业务使用的数据库
-- prom/prometheus：监控业务
-- grafana/grafana ：prometheus的ui很难看，用来显示prometheus收集来的数据
-- elastic/filebeat ： 收集日志到kafka
+- prometheus:监控业务
+- grafana :prometheus的ui很难看，用来显示prometheus收集来的数据
+- filebeat : 收集日志到kafka
 - go-stash : 消费kafka中日志，脱敏、过滤然后输出到es
-- docker.elastic.co/elasticsearch/elasticsearch ： 存储收集的日志
-- docker.elastic.co/kibana/kibana ： 显示elasticsearch
-- jaegertracing/jaeger-query 、jaegertracing/jaeger-collector、jaegertracing/jaeger-agent：链路追踪
+- elasticsearch : 存储收集的日志
+- kibana : 显示elasticsearch
+- jaegertracing/jaeger-query 、jaegertracing/jaeger-collector、jaegertracing/jaeger-agent:链路追踪
 - go-stash : filebeat收集日志到kafka后，go-stash去消费kafka进行数据脱敏、过滤日志中内容，最后输出到es中
-- xxl-job :管理定时任务
+- xxl-job-admin :定时任务调度器
+- xxl-job-executor:定时任务执行器
 
 
 
@@ -475,27 +462,21 @@ Likely root cause: java.nio.file.AccessDeniedException: /usr/share/elasticsearch
 4、jaeger依赖于elasticsearch，且没有失败自动重启
 ```
 
-
-
-
-#### 666、访问项目
-
-由于我们使用nginx做的网关，nginx网关配置在docker-compose中，也是配置在docker-compose中，nginx对外暴露端口是8888，所以我们通过8888端口访问
-
-```shell
-$ curl  -X POST "http://127.0.0.1:8888/usercenter/v1/user/register" -H "Content-Type: application/json" -d "{\"mobile\":\"18888888888\",\"password\":\"123456\"}" 
-
-返回:
-{"code":200,"msg":"OK","data":{"accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzM5NjY0MjUsImlhdCI6MTY0MjQzMDQyNSwiand0VXNlcklkIjo1fQ.E5-yMF0OvNpBcfr0WyDxuTq1SRWGC3yZb9_Xpxtzlyw","accessExpire":1673966425,"refreshAfter":1658198425}}
-```
-
 【注】 如果是访问nginx失败，访问成功可以忽略，可能是nginx依赖后端服务，之前因为后端服务没启动起来，nginx这里没启动起来，重启一次nginx即可,项目根目录下重启
 
 ```shell
 $ docker-compose restart nginx
 ```
 
+​
+### 十二、CI CD todo......
+##### 关于该项目通过gitlab jenkins完成ci cd的配置后续时间充裕的情况下持续补充！
 
+
+# 赞赏😄😂🤣
+
+
+<img src="./deploy/images/zs.png" alt="zs.png" style="zoom:10%;" />
 
 
 
