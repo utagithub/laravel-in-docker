@@ -6,8 +6,8 @@ services:
   #前端网关nginx-gateay (只代理laravel-in-docker-api)
   nginx-gateway:
     image: registry.cn-hangzhou.aliyuncs.com/u_ta_other/nginx:1.21.5
-    container_name: nginx-gateway
-    restart: always
+    container_name: laravel-nginx
+    #restart: always
     privileged: true
     environment:
       - TZ=Asia/Shanghai
@@ -32,7 +32,7 @@ services:
       - .:/var/www/html/laravel-in-docker:rw
       - ./storage/supervisor/api:/etc/supervisor/conf.d
     privileged: true
-    restart: always
+    #restart: always
     networks:
       - laravel-in-docker-net
 
@@ -47,7 +47,7 @@ services:
       - .:/var/www/html/laravel-in-docker:rw
       - ./storage/supervisor/cron:/etc/supervisor/conf.d
     privileged: true
-    restart: always
+    #restart: always
     networks:
       - laravel-in-docker-net
 
@@ -62,7 +62,7 @@ services:
       - .:/var/www/html/laravel-in-docker:rw
       - ./storage/supervisor/queue:/etc/supervisor/conf.d
     privileged: true
-    restart: always
+    #restart: always
     networks:
       - laravel-in-docker-net
 

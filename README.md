@@ -18,8 +18,7 @@
     - go-stash:go-stash配置
     - nginx: nginx网关配置
     - prometheus : prometheus配置
-    - script:
-        - mysql:数据库脚本
+    - sql:数据库脚本
 - storage
     - supervisor:
         - api: prometheus的node_exporter监控服务,队列监控工具horizon
@@ -95,9 +94,13 @@
 #### 3.1、clone代码&更新依赖
 
 ```shell
-$ git clone https://github.com/utagithub/laravel-in-docker.git
-$ composer install
-$ cp .env.example .env
+  
+  git clone https://github.com/utagithub/laravel-in-docker.git
+  
+  composer install
+  
+  cp .env.example .env
+  
 ```
 
 ##### Tips :注意local和docker环境下的mysql,redis的配置使用
@@ -110,8 +113,11 @@ $ cp .env.example .env
 #### 3.2、启动项目所依赖的环境
 
 ```shell
-$ docker network create laravel-in-docker-net
-$ docker-compose -f docker-compose-ali-env.yml up -d
+  
+  docker network create laravel-in-docker-net
+  
+  docker-compose -f docker-compose-ali-env.yml up -d
+
 ```
 
 
@@ -120,14 +126,28 @@ $ docker-compose -f docker-compose-ali-env.yml up -d
 
 ###### 创建kafka topic
 
-项目中是用来Kafka作为日志搜集的中间件需要先创建日志搜集的topic, laravel-in-docker-log 这个topic是日志收集使用的
+###### 项目中是用来Kafka作为日志搜集的中间件需要先创建日志搜集的topic, 
+###### laravel-in-docker-log 这个topic是应用日志收集使用的
+###### laravel-nginx-log 这个topic是nginx日志收集使用的
 
 进入容器
 
 ```shell
-$ docker exec -it kafka /bin/sh
-$ cd /opt/kafka/bin/
-$ ./kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 -partitions 1 --topic laravel-in-docker-log
+  
+  docker exec -it kafka /bin/sh
+  
+  cd /opt/kafka/bin/
+  
+  ./kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 -partitions 1 --topic laravel-in-docker-log
+  
+  ./kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 -partitions 1 --topic laravel-nginx-log
+
+  # 查看有哪些topic
+  # kafka-topics.sh --list --zookeeper zookeeper:2181
+  # 查看有哪些消费者组
+  # kafka-consumer-groups.sh --bootstrap-server kafka:9092 --list
+
+
 ```
 
 
@@ -138,15 +158,18 @@ $ ./kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 -
 本地工具连接mysql的话要先进入容器，给root设置下远程连接权限
 
 ```shell
-$ docker exec -it mysql /bin/bash 
-$ mysql -uroot -p
-##输入密码:PXDN93VRKUm8TeE7
-$ use mysql;
-$ update user set host='%' where user='root';
-$ FLUSH PRIVILEGES;
+  
+  docker exec -it mysql /bin/bash 
+  
+  mysql -uroot -p
+  #输入密码:PXDN93VRKUm8TeE7
+  use mysql;
+  update user set host='%' where user='root';
+  FLUSH PRIVILEGES;
+  
 ```
 
-##### 导入xxl-job数据库:/laravel-in-dcoker/deploy/mysql/tables_xxl_job.sql数据(xxl-job数据库)
+##### 导入xxl-job数据库:/laravel-in-dcoker/deploy/sql/tables_xxl_job.sql数据(xxl-job数据库)
 
 
 
@@ -204,13 +227,16 @@ Kafka:  （发布、订阅｜pub、sub）自行客户端工具查看
 ##### 5.1 拉取运行环境镜像,启动项目
 【注】依赖的是项目根目录下的docker-compose.yml配置
 ```shell
-$ docker-compose up -d 
+  
+  docker-compose up -d 
+
 ```
 
 推荐使用portainer管理镜像,容器 所有服务启动如下图所示
 
 
-<img src="./deploy/images/portainer.png" alt="portainer.png" style="zoom:33%;" />
+<img src="./deploy/images/portainer01.png" alt="portainer.png" style="zoom:33%;" />
+<img src="./deploy/images/portainer02.png" alt="portainer.png" style="zoom:33%;" />
 
 
 
@@ -223,15 +249,20 @@ $ docker-compose up -d
 
 
 ```shell
-$ docker exec -it xxl-job-executor /bin/bash
-$ /etc/init.d/ssh status
+  
+  docker exec -it xxl-job-executor /bin/bash
+  
+  /etc/init.d/ssh status
+
 ```
 <img src="./deploy/images/ssh001.png" alt="ssh001.png" style="zoom:33%;" />
 
 
 #### 如果没有启动，则执行以下启动命令
 ```shell
-$ /etc/init.d/ssh start
+  
+  /etc/init.d/ssh start
+
 ```
 
 
@@ -242,8 +273,11 @@ $ /etc/init.d/ssh start
 ##### 需要在xxl-job的执行器容器xxl-job-executor中手动执行一次远程登陆
 
 ```shell
-$ docker exec -it xxl-job-executor /bin/bash
-$ ssh root@laravel-indocker-cron
+  
+  docker exec -it xxl-job-executor /bin/bash
+  
+  ssh root@laravel-indocker-cron
+
 ```
 
 
@@ -270,6 +304,9 @@ http://0.0.0.0:18080/xxl-job-admin/toLogin
 <img src="./deploy/images/xxl-job004.png" alt="xxl-job004.png" style="zoom:33%;" />
 
 
+```shell
+  ssh root@laravel-in-docker-cron/usr/local/bin/php /var/www/html/laravel-in-docker/artisan test_command
+```
 <img src="./deploy/images/xxl-job005.png" alt="xxl-job005.png" style="zoom:33%;" />
 
 
@@ -298,7 +335,9 @@ http://0.0.0.0:18080/xxl-job-admin/toLogin
 【注】如果是第一次拉取项目，每个项目容器第一次构建拉取依赖，这个看网络情况，可能会稍微比较慢有的服务，这个很正常
 
 ```shell
-$ docker-compose logs -f 
+  
+  docker-compose logs -f 
+
 ```
 
 可以看到prometheus也显示成功了，同理把其他的也排查一次，启动成功就可以了
@@ -383,9 +422,13 @@ $ docker-compose logs -f
   3）进入kafka容器内，执行消费kafka-log消息，看看是否filebeat的消息已经发送到了kafka
 
   ```shell
-  $ docker exec -it kafka /bin/sh
-  $ cd /opt/kafka/bin
-  $ ./kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic laravel-in-docker-log 
+  
+    docker exec -it kafka /bin/sh
+  
+    cd /opt/kafka/bin
+    
+  ./kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic laravel-in-docker-log 
+  
   ```
 
   【注】如果能消费到消息，说明filebeat与kafka没问题，就去排查go-stash、es

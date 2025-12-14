@@ -39,6 +39,7 @@ class TestCommand extends Command
     public function handle()
     {
         \Log::info("定时任务test_command测试执行中");
+//        \App\Jobs\TestJobQueue::dispatch();
         \Log::info("定时任务test_command测试结束");
     }
 }

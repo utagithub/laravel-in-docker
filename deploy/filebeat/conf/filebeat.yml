@@ -2,8 +2,18 @@ filebeat.inputs:
   - type: log
     enabled: true
     paths:
-#      - /var/lib/docker/containers/*/*-json.log
-      - /usr/local/share/logs/*.log
+      - /usr/local/share/logs/app-logs/*.log
+    fields:
+      destination: laravel-in-docker-log
+    fields_under_root: true
+
+  - type: log
+    enabled: true
+    paths:
+      - /usr/local/share/logs/nginx-logs/*.log
+    fields:
+      destination: laravel-nginx-log
+    fields_under_root: true
 
 filebeat.config:
   modules:
@@ -18,9 +28,10 @@ output.kafka:
   enabled: true
   hosts: ["kafka:9092"]
   #要提前创建topic
-  topic: "laravel-in-docker-log"
+  topic: "%{[destination]}"
   partition.hash:
     reachable_only: true
   compression: gzip
   max_message_bytes: 1000000
   required_acks: 1
+
